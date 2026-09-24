@@ -11,10 +11,7 @@ struct Display {
     int size;
     std::vector<char> display;
 
-    Display(int size) {
-        this->size = size;
-        display.assign(size, '.');
-    }
+    Display(int size) : size(size), display(size, '.') {}
 
     void draw_pixel(int index, char texture) {
         if(0 <= index && index < size) {
