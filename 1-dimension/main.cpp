@@ -130,6 +130,16 @@ void delete_object(Object &obj) {
     obj.object = nullptr;
 }
 
+void cleanup_dead_objects(std::vector<Object> &object_list) {
+    for(auto it = object_list.begin(); it != object_list.end(); ) {
+        if(it->object == nullptr) {
+            object_list.erase(it);
+        } else {
+            it++;
+        }
+    } 
+}
+
 int main() {
     Display display(20);
 
@@ -144,11 +154,21 @@ int main() {
 
     display.clear();
 
+    cleanup_dead_objects(object_list);
+
+    std::cout << object_list.size() << '\n';
+
     delete_object(object_list[0]);
 
     rasterize(display, object_list);
 
     display.print();
+
+    display.clear();
+
+    cleanup_dead_objects(object_list);
+
+    std::cout << object_list.size() << '\n';
 
     std::cout << '\n';
 
