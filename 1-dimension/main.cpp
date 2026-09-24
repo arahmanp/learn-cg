@@ -1,7 +1,11 @@
 #include <cmath>
 #include <iostream>
-#include <string>
 #include <vector>
+
+enum class ObjType {
+    Point,
+    LineSegment,
+};
 
 struct Display {
     int size;
@@ -12,26 +16,30 @@ struct Display {
         display.assign(size, '.');
     }
 
+    void draw_pixel(int index, char texture) {
+        if(0 <= index && index < size) {
+            display[index] = texture;
+        }
+    }
+
     void print() {
         for(auto pixel : display) {
             std::cout << pixel;
         }
         std::cout << '\n';
     }
+
+    void clear() {
+        for(auto &pixel : display) {
+            pixel = '.';
+        }
+    }
 };
 
 struct Point {
     double x;
 
-    Point(double x) {
-        this->x = x;
-    }
-
-    void draw_pixel(Display &display, char texture) {
-        if(0 <= x && x <= display.size - 1){
-            display.display[round(x)] = texture;
-        }
-    }
+    Point(double x) : x(x) {}
 
     void translate(double distance) {
         x += distance;
@@ -42,21 +50,7 @@ struct LineSegment {
     double a;
     double b;
 
-    LineSegment(double a, double b) {
-        this->a = a;
-        this->b = b;
-    }
-
-    void draw_pixel(Display &display, char texture) {
-        int lower_bound = round(a);
-        int upper_bound = round(b);
-
-        for(int i = lower_bound; i <= upper_bound; i++) {
-            if(0 <= i && i <= display.size - 1) {
-                display.display[i] = texture;
-            }
-        }
-    }
+    LineSegment(double a, double b) : a(a), b(b) {}
 
     void translate(double distance) {
         a += distance;
@@ -64,30 +58,96 @@ struct LineSegment {
     }
 
     void scale(double factor) {
-        a *= factor;
-        b *= factor;
+        double center = (a + b) / 2.0;
+        double half_length = (b - a) / 2.0 * factor;
+        a = center - half_length;
+        b = center + half_length;
     }
 };
 
 struct Object {
-    std::string type;
+    ObjType type;
     char texture;
-    void *obj;
+    void *object;
 };
 
-void rasterize(Display &display, const std::vector<Object> &object_list);
+void rasterize(Display &display, const std::vector<Object> &object_list) {
+    for(const auto &obj : object_list) {
+        if(obj.object == nullptr) continue;
+
+        if(obj.type == ObjType::Point) {
+            Point *point = static_cast<Point*>(obj.object);
+            int pixel_idx = round(point->x);
+            display.draw_pixel(pixel_idx, obj.texture);
+        } else if(obj.type == ObjType::LineSegment) {
+            LineSegment *line = static_cast<LineSegment*>(obj.object);
+            
+            double start = (line->a < line->b) ? line->a : line->b;
+            double end = (line->a < line->b) ? line->b : line->a;
+
+            int lower_bound = round(start);
+            int upper_bound = round(end);
+
+            for(int i = lower_bound; i <= upper_bound; i++) {
+                display.draw_pixel(i, obj.texture);
+            }
+        }
+    }
+}
+
+Object create_point(double x, char texture) {
+    Point *point = new Point(x);
+
+    Object obj = {
+        ObjType::Point,
+        texture,
+        static_cast<void*>(point),
+    };
+
+    return obj;
+}
+
+Object create_line_segment(double a, double b, char texture) {
+    LineSegment *line = new LineSegment(a, b);
+
+    Object obj = {
+        ObjType::LineSegment,
+        texture,
+        static_cast<void*>(line)
+    };
+
+    return obj;
+}
+
+void delete_object(Object &obj) {
+    if(obj.object == nullptr) return;
+
+    if(obj.type == ObjType::Point) {
+        Point *point = static_cast<Point*>(obj.object);
+        delete point;
+    } else if(obj.type == ObjType::LineSegment) {
+        LineSegment *line = static_cast<LineSegment*>(obj.object);
+        delete line;
+    }
+
+    obj.object = nullptr;
+}
 
 int main() {
     Display display(20);
 
     std::vector<Object> object_list;
 
-    LineSegment line_1(1, 5), line_2(8, 10);
-    Point point_1(15.67);
-    
-    object_list.push_back({"line", '0', &line_1});
-    object_list.push_back({"line", '&', &line_2});
-    object_list.push_back({"point", '$', &point_1});
+    object_list.push_back(create_line_segment(3, 7, '%'));
+    object_list.push_back(create_line_segment(10, 10, '$'));
+
+    rasterize(display, object_list);
+
+    display.print();
+
+    display.clear();
+
+    delete_object(object_list[0]);
 
     rasterize(display, object_list);
 
@@ -98,12 +158,3 @@ int main() {
     return 0;
 }
 
-void rasterize(Display &display, const std::vector<Object> &object_list) {
-    for(auto obj : object_list) {
-        if(obj.type == "line") {
-            ((LineSegment *)obj.obj)->draw_pixel(display, obj.texture);
-        } else if(obj.type == "point") {
-            ((Point *)obj.obj)->draw_pixel(display, obj.texture);
-        }
-    }
-}
