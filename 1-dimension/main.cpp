@@ -141,42 +141,93 @@ void cleanup_dead_objects(std::vector<Object> &object_list) {
 }
 
 int main() {
-    Display display(20);
 
+    // Initialize the display and object_list objects
+    Display display(20);
     std::vector<Object> object_list;
 
-    object_list.push_back(create_line_segment(3, 7, '%'));
-    object_list.push_back(create_line_segment(10, 10, '$'));
+    // ===========================================
+    //  1st Render
+    // ===========================================
 
+    // 1. Object modification (here we create a new point at position 2)
+    object_list.push_back(create_point(2, '@'));
+
+    // 2. Rasterization (draw objects to the Display)
     rasterize(display, object_list);
 
+    // 3. Display the objects on the screen
     display.print();
 
-    display.clear();
-
+    // 4. Call `cleanup_dead_objects` to clear the vector
     cleanup_dead_objects(object_list);
 
-    std::cout << object_list.size() << '\n';
+    // 5. Reset the screen buffer to '.'
+    display.clear();
 
+
+    // ===========================================
+    //  2nd Render
+    // ===========================================
+
+    // 1. Object modification:
+    //    - Delete point at position 2
+    //    - Create two line segments at position [1, 5] and [14, 16]
+    //    - Create a new point at position 8
     delete_object(object_list[0]);
+    object_list.push_back(create_line_segment(1, 5, '#'));
+    object_list.push_back(create_line_segment(14, 16, '&'));
+    object_list.push_back(create_point(8, '*'));
 
+    // 2. Rasterization (draw objects to the Display)
     rasterize(display, object_list);
 
+    // 3. Display the objects on the screen
     display.print();
 
-    display.clear();
-
+    // 4. Call `cleanup_dead_objects` to clear the vector
     cleanup_dead_objects(object_list);
 
-    std::cout << object_list.size() << '\n';
+    // 5. Reset the screen buffer to '.'
+    display.clear();
+
+
+    // ===========================================
+    //  3rd Render
+    // ===========================================
+
+    // 1. Object modification:
+    //    - Delete line segment at position [1, 5]
+    //    - Move point at position 8, 5 step to the left
+    //    - Scale the line segment at position [14, 16] by a scale factor of 3.5
+    delete_object(object_list[0]);
+    static_cast<Point*>(object_list[2].object)->translate(-5);
+    static_cast<LineSegment*>(object_list[1].object)->scale(3.5);
+
+    // 2. Rasterization (draw objects to the Display)
+    rasterize(display, object_list);
+
+    // 3. Display the objects on the screen
+    display.print();
+
+    // 4. Call `cleanup_dead_objects` to clear the vector
+    cleanup_dead_objects(object_list);
+
+    // 5. Reset the screen buffer to '.'
+    display.clear();
+
 
     std::cout << '\n';
 
+    // Deallocate all remaining objects in `object_list`
     for(auto obj : object_list) {
         delete_object(obj);
     }
+
+    // Clear the ‘object_list’ vector
     object_list.clear();
 
     return 0;
+
 }
 
