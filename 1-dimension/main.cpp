@@ -152,6 +152,11 @@ int main() {
 
     std::cout << '\n';
 
+    for(auto obj : object_list) {
+        delete_object(obj);
+    }
+    object_list.clear();
+
     return 0;
 }
 
