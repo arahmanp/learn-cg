@@ -1,9 +1,7 @@
-#include <chrono>
 #include <cmath>
 #include <cstddef>
 #include <iostream>
 #include <string>
-#include <thread>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -222,42 +220,7 @@ Object create_line_segment(std::string name, double a, double b, char texture) {
 }
 
 int main() {
-    Display display(20, '.');
-    ObjectList list;
-
-    list.add_object(create_line_segment("line1", 0, 3, '$'));
-
-    double distance = 1;
-    int target = 100;
-    int counter = 1;
-
-    while(counter <= target) {
-        for(int i = 0; i < 16; i++) {
-            std::cout << "\033[2J\033[1;1H"; 
-
-            rasterize(display, list);
-            display.print();
-            list.cleanup_dead_objects();
-            display.clear();
-
-            list.get_object("line1").translate(distance);
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        }
-
-        distance *= -1;
-        counter++;
-    }
-
-    std::cout << '\n';
-
-    for(auto obj : list.object_list) {
-        list.delete_object(obj.name);
-    }
-
-    list.object_list.clear();
-
-    list.name_to_index.clear();
+    //
 
     return 0;
 
