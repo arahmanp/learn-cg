@@ -220,93 +220,44 @@ Object create_line_segment(std::string name, double a, double b, char texture) {
 }
 
 int main() {
-
-    // Initialize the display and object_list objects
     Display display(20, '.');
-    ObjectList object_list;
+    ObjectList list;
 
-    // ===========================================
-    //  1st Render
-    // ===========================================
+    list.add_object(create_line_segment("line1", 1, 3, '$'));
 
-    // 1. Object modification (here we create a new point at position 2)
-    object_list.add_object(create_point("point_1", 2, '@'));
+    double distance = 1;
+    for(int i = 0; i < 10; i++) {
+        rasterize(display, list);
+        display.print();
+        list.cleanup_dead_objects();
+        display.clear();
 
-    // 2. Rasterization (draw objects to the Display)
-    rasterize(display, object_list);
+        list["line1"].translate(distance);
+    }
 
-    // 3. Display the objects on the screen
-    display.print();
+    list.delete_object("line1");
+    list.cleanup_dead_objects();
+    list.add_object(create_line_segment("line", 15, 19, '@'));
+    distance = -1.5;
 
-    // 4. Call `cleanup_dead_objects` to clear the vector
-    object_list.cleanup_dead_objects();
+    for(int i = 0; i < 10; i++) {
+        rasterize(display, list);
+        display.print();
+        list.cleanup_dead_objects();
+        display.clear();
 
-    // 5. Reset the screen buffer to '.'
-    display.clear();
-
-
-    // ===========================================
-    //  2nd Render
-    // ===========================================
-
-    // 1. Object modification:
-    //    - Delete point at position 2
-    //    - Create two line segments at position [1, 5] and [14, 16]
-    //    - Create a new point at position 8
-    object_list.delete_object("point_1");
-    object_list.add_object(create_line_segment("line_1", 1, 5, '#'));
-    object_list.add_object(create_line_segment("line_2", 14, 16, '&'));
-    object_list.add_object(create_point("point_2", 8, '*'));
-
-    // 2. Rasterization (draw objects to the Display)
-    rasterize(display, object_list);
-
-    // 3. Display the objects on the screen
-    display.print();
-
-    // 4. Call `cleanup_dead_objects` to clear the vector
-    object_list.cleanup_dead_objects();
-
-    // 5. Reset the screen buffer to '.'
-    display.clear();
-
-
-    // ===========================================
-    //  3rd Render
-    // ===========================================
-
-    // 1. Object modification:
-    //    - Delete line segment at position [1, 5]
-    //    - Move point at position 8, 5 step to the left
-    //    - Scale the line segment at position [14, 16] by a scale factor of 3.5
-    object_list.delete_object("line_1");
-    object_list["point_2"].translate(-5);
-    object_list["line_2"].scale(3.5);
-
-    // 2. Rasterization (draw objects to the Display)
-    rasterize(display, object_list);
-
-    // 3. Display the objects on the screen
-    display.print();
-
-    // 4. Call `cleanup_dead_objects` to clear the vector
-    object_list.cleanup_dead_objects();
-
-    // 5. Reset the screen buffer to '.'
-    display.clear();
-
+        list["line"].translate(distance);
+    }
 
     std::cout << '\n';
 
-    // Deallocate all remaining objects in `object_list`
-    for(auto obj : object_list.object_list) {
-        object_list.delete_object(obj.name);
+    for(auto obj : list.object_list) {
+        list.delete_object(obj.name);
     }
 
-    // Clear the ‘object_list’ vector
-    object_list.object_list.clear();
+    list.object_list.clear();
 
-    object_list.name_to_index.clear();
+    list.name_to_index.clear();
 
     return 0;
 
