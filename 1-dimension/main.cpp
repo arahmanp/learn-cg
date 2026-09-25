@@ -39,7 +39,7 @@ struct Point {
 
     Point(double x) : x(x) {}
 
-    void translate(double distance) {
+    void g_translate(double distance) {
         x += distance;
     }
 };
@@ -50,12 +50,12 @@ struct LineSegment {
 
     LineSegment(double a, double b) : a(a), b(b) {}
 
-    void translate(double distance) {
+    void g_translate(double distance) {
         a += distance;
         b += distance;
     }
 
-    void scale(double factor) {
+    void g_scale(double factor) {
         double center = (a + b) / 2.0;
         double half_length = (b - a) / 2.0 * factor;
         a = center - half_length;
@@ -67,6 +67,29 @@ struct Object {
     ObjType type;
     char texture;
     void *object;
+
+    void translate(double distance) {
+        switch (type) {
+            case ObjType::Point:
+                static_cast<Point*>(object)->g_translate(distance);
+                break;
+            
+            case ObjType::LineSegment:
+                static_cast<LineSegment*>(object)->g_translate(distance);
+                break;
+        }
+    }
+
+    void scale(double factor) {
+        switch (type) {
+            case ObjType::Point:
+                return;
+            
+            case ObjType::LineSegment:
+                static_cast<LineSegment*>(object)->g_scale(factor);
+                break;
+        }
+    }
 };
 
 void rasterize(Display &display, const std::vector<Object> &object_list) {
@@ -202,8 +225,8 @@ int main() {
     //    - Move point at position 8, 5 step to the left
     //    - Scale the line segment at position [14, 16] by a scale factor of 3.5
     delete_object(object_list[0]);
-    static_cast<Point*>(object_list[2].object)->translate(-5);
-    static_cast<LineSegment*>(object_list[1].object)->scale(3.5);
+    object_list[2].translate(-5);
+    object_list[1].scale(3.5);
 
     // 2. Rasterization (draw objects to the Display)
     rasterize(display, object_list);
