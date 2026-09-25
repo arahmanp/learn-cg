@@ -38,6 +38,20 @@ struct Display {
     }
 };
 
+struct Camera {
+    double position;
+
+    Camera(double position) : position(position) {}
+
+    void move(double distance) {
+        position += distance;
+    }
+
+    void move_to(double destination) {
+        position = destination;
+    }
+};
+
 struct Point {
     double x;
 
@@ -161,14 +175,14 @@ struct ObjectList {
     }
 };
 
-void rasterize(Display &display, const ObjectList &object_list) {
+void rasterize(Display &display, const Camera &camera, const ObjectList &object_list) {
     for(const auto &obj : object_list.object_list) {
         if(obj.object == nullptr) continue;
 
         switch (obj.type) {
             case ObjType::Point: {
                 Point *point = static_cast<Point*>(obj.object);
-                int pixel_idx = round(point->x);
+                int pixel_idx = round(point->x - camera.position);
                 display.draw_pixel(pixel_idx, obj.texture);
 
                 break;
@@ -184,7 +198,7 @@ void rasterize(Display &display, const ObjectList &object_list) {
                 int upper_bound = round(end);
 
                 for(int i = lower_bound; i <= upper_bound; i++) {
-                    display.draw_pixel(i, obj.texture);
+                    display.draw_pixel(i - camera.position, obj.texture);
                 }
 
                 break;
