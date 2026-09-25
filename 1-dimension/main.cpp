@@ -106,8 +106,8 @@ struct ObjectList {
 
     ObjectList() : size(0) {}
 
-    Object get_object(std::string object_name) {
-        return object_list.at(name_to_index[object_name]);
+    Object& get_object(std::string object_name) {
+        return object_list.at(name_to_index.at(object_name));
     }
 
     void add_object(Object object) {
@@ -228,8 +228,10 @@ int main() {
     list.add_object(create_line_segment("line1", 0, 3, '$'));
 
     double distance = 1;
+    int target = 100;
+    int counter = 1;
 
-    while(1) {
+    while(counter <= target) {
         for(int i = 0; i < 16; i++) {
             std::cout << "\033[2J\033[1;1H"; 
 
@@ -244,6 +246,7 @@ int main() {
         }
 
         distance *= -1;
+        counter++;
     }
 
     std::cout << '\n';
