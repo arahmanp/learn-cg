@@ -106,7 +106,7 @@ struct ObjectList {
 
     ObjectList() : size(0) {}
 
-    Object operator[](std::string object_name) {
+    Object get_object(std::string object_name) {
         return object_list.at(name_to_index[object_name]);
     }
 
@@ -238,7 +238,7 @@ int main() {
             list.cleanup_dead_objects();
             display.clear();
 
-            list["line1"].translate(distance);
+            list.get_object("line1").translate(distance);
 
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
