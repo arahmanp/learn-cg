@@ -251,8 +251,10 @@ int main() {
     }
     obj_list.add_object(create_line_segment("last_line", 280, 300, '%'));
 
+    // Setting up camera movement
     double distance = 1.0;
 
+    // Execute camera movement, produce cool animation!
     while(1) {
         clear_screen();
 
