@@ -9,9 +9,10 @@ enum class ObjType {
 
 struct Display {
     int size;
+    char background;
     std::vector<char> display;
 
-    Display(int size) : size(size), display(size, '.') {}
+    Display(int size, char background = ' ') : size(size), background(background), display(size, background) {}
 
     void draw_pixel(int index, char texture) {
         if(0 <= index && index < size) {
@@ -28,7 +29,7 @@ struct Display {
 
     void clear() {
         for(auto &pixel : display) {
-            pixel = '.';
+            pixel = background;
         }
     }
 };
@@ -143,7 +144,7 @@ void cleanup_dead_objects(std::vector<Object> &object_list) {
 int main() {
 
     // Initialize the display and object_list objects
-    Display display(20);
+    Display display(20, '.');
     std::vector<Object> object_list;
 
     // ===========================================
