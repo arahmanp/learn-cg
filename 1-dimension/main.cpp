@@ -96,21 +96,29 @@ void rasterize(Display &display, const std::vector<Object> &object_list) {
     for(const auto &obj : object_list) {
         if(obj.object == nullptr) continue;
 
-        if(obj.type == ObjType::Point) {
-            Point *point = static_cast<Point*>(obj.object);
-            int pixel_idx = round(point->x);
-            display.draw_pixel(pixel_idx, obj.texture);
-        } else if(obj.type == ObjType::LineSegment) {
-            LineSegment *line = static_cast<LineSegment*>(obj.object);
+        switch (obj.type) {
+            case ObjType::Point: {
+                Point *point = static_cast<Point*>(obj.object);
+                int pixel_idx = round(point->x);
+                display.draw_pixel(pixel_idx, obj.texture);
+
+                break;
+            }
+
+            case ObjType::LineSegment: {
+                LineSegment *line = static_cast<LineSegment*>(obj.object);
             
-            double start = (line->a < line->b) ? line->a : line->b;
-            double end = (line->a < line->b) ? line->b : line->a;
+                double start = (line->a < line->b) ? line->a : line->b;
+                double end = (line->a < line->b) ? line->b : line->a;
 
-            int lower_bound = round(start);
-            int upper_bound = round(end);
+                int lower_bound = round(start);
+                int upper_bound = round(end);
 
-            for(int i = lower_bound; i <= upper_bound; i++) {
-                display.draw_pixel(i, obj.texture);
+                for(int i = lower_bound; i <= upper_bound; i++) {
+                    display.draw_pixel(i, obj.texture);
+                }
+
+                break;
             }
         }
     }
@@ -143,12 +151,18 @@ Object create_line_segment(double a, double b, char texture) {
 void delete_object(Object &obj) {
     if(obj.object == nullptr) return;
 
-    if(obj.type == ObjType::Point) {
-        Point *point = static_cast<Point*>(obj.object);
-        delete point;
-    } else if(obj.type == ObjType::LineSegment) {
-        LineSegment *line = static_cast<LineSegment*>(obj.object);
-        delete line;
+    switch (obj.type) {
+        case ObjType::Point: {
+            Point *point = static_cast<Point*>(obj.object);
+            delete point;
+            break;
+        }
+
+        case ObjType::LineSegment: {
+            LineSegment *line = static_cast<LineSegment*>(obj.object);
+            delete line;
+            break;
+        }
     }
 
     obj.object = nullptr;
