@@ -196,11 +196,11 @@ void rasterize(Display &display, const Camera &camera, const ObjectList &object_
                 double start = (line->a < line->b) ? line->a : line->b;
                 double end = (line->a < line->b) ? line->b : line->a;
 
-                int lower_bound = round(start);
-                int upper_bound = round(end);
+                int lower_bound = round(start - camera.position);
+                int upper_bound = round(end - camera.position);
 
                 for(int i = lower_bound; i <= upper_bound; i++) {
-                    display.draw_pixel(i - camera.position, obj.texture);
+                    display.draw_pixel(i, obj.texture);
                 }
 
                 break;
