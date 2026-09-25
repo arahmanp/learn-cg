@@ -1,7 +1,9 @@
+#include <chrono>
 #include <cmath>
 #include <cstddef>
 #include <iostream>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -223,30 +225,25 @@ int main() {
     Display display(20, '.');
     ObjectList list;
 
-    list.add_object(create_line_segment("line1", 1, 3, '$'));
+    list.add_object(create_line_segment("line1", 0, 3, '$'));
 
     double distance = 1;
-    for(int i = 0; i < 10; i++) {
-        rasterize(display, list);
-        display.print();
-        list.cleanup_dead_objects();
-        display.clear();
 
-        list["line1"].translate(distance);
-    }
+    while(1) {
+        for(int i = 0; i < 16; i++) {
+            std::cout << "\033[2J\033[1;1H"; 
 
-    list.delete_object("line1");
-    list.cleanup_dead_objects();
-    list.add_object(create_line_segment("line", 15, 19, '@'));
-    distance = -1.5;
+            rasterize(display, list);
+            display.print();
+            list.cleanup_dead_objects();
+            display.clear();
 
-    for(int i = 0; i < 10; i++) {
-        rasterize(display, list);
-        display.print();
-        list.cleanup_dead_objects();
-        display.clear();
+            list["line1"].translate(distance);
 
-        list["line"].translate(distance);
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+
+        distance *= -1;
     }
 
     std::cout << '\n';
