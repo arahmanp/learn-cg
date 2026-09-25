@@ -120,7 +120,7 @@ struct ObjectList {
 
     ObjectList() : size(0) {}
 
-    Object& get_object(const std::string &object_name) {
+    Object& get_object(const std::string &object_name) { 
         return object_list.at(name_to_index.at(object_name));
     }
 
@@ -130,7 +130,7 @@ struct ObjectList {
         size++;
     }
 
-    void delete_object(const std::string &object_name) {
+    void delete_object(const std::string &object_name) { 
         if(!name_to_index.contains(object_name)) return;
 
         int object_index = name_to_index[object_name];
